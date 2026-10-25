@@ -2,8 +2,8 @@
 body { margin: 12px; }
 h1 { font-size: 16px; margin: 0 0 8px; }
 .hint { opacity: .7; margin: 0 0 12px; }
-.row { display: flex; gap: 6px; margin-bottom: 8px; }
-.row input { flex: 1; min-width: 0; }
+.row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.row input { flex: 1 1 120px; min-width: 0; }
 button, select, input { padding: 5px 8px; font: inherit; }
 #status { margin: 8px 0; min-height: 1.2em; }
 #cols { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 6px 0; }

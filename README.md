@@ -4,6 +4,10 @@ A small working Chrome extension for Cin7 Core: a side panel that reads allow-li
 signed-in session and shows the rows. It is a backbone to copy, not a product. Point your own coding agent at it, together
 with the [Cin7 Core rebuild map](https://github.com/fightmilk808/cin7-core-rebuild), and ask for the extension you want.
 
+![The side panel listing MRP runs (invented sample data)](docs/screenshot.png)
+
+*Sample data. This is not Cin7 affiliated software: it is an independent example that talks to the Cin7 Core web app you are already signed in to.*
+
 ## What it does
 
 - Pick a dataset: MRP runs, products or suppliers (three `GET` reads from the map).
@@ -57,3 +61,12 @@ a CSV export button, or filling in `sink()` to save rows to your own database.
   so don't sign in from a second browser while testing.
 - **Be gentle.** Keep the call gap, page results, and don't loop over thousands of records.
 - **Nothing leaves the browser** unless you write a `sink()` that sends it.
+
+## Update and remove
+
+- **Update:** pull the repo, press the reload icon on the extension's card in `chrome://extensions`, then reload the Cin7 tab.
+- **Remove:** click **Remove** on the extension's card. It stores nothing, so there is nothing else to clean up.
+
+## License
+
+[MIT](LICENSE)
