@@ -53,6 +53,10 @@ Paste something like this into your agent, inside a clone of this repo, with the
 Ideas to ask for: a product or stock lookup, a purchase order list with links back to Cin7, a production schedule view,
 a CSV export button, or filling in `sink()` to save rows to your own database.
 
+## Agent skill
+
+[skills/cin7-extension/SKILL.md](skills/cin7-extension/SKILL.md) gives your agent this repo's rules and the steps to add a dataset. Copy the folder into `~/.claude/skills/` (or your agent's skills folder). For endpoint lookups, pair it with the `cin7 mcp` server from [cin7-core-cli](https://github.com/fightmilk808/cin7-core-cli).
+
 ## Ground rules
 
 - **Read only.** The content script uses `GET` and nothing else. Cin7 stores often save with the same URL as they read
