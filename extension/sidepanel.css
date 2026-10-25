@@ -1,0 +1,7 @@
+:root { color-scheme: light dark; font: 14px system-ui, sans-serif; }
+body { margin: 12px; }
+h1 { font-size: 16px; margin: 0 0 8px; }
+.hint { opacity: .7; margin: 0 0 12px; }
+button { padding: 6px 12px; }
+table { border-collapse: collapse; width: 100%; margin-top: 12px; }
+th, td { text-align: left; padding: 4px 6px; border-bottom: 1px solid #8884; }
