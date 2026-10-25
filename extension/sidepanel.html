@@ -7,10 +7,25 @@
 </head>
 <body>
   <h1>Cin7 Core Example</h1>
-  <p class="hint">Open a signed-in Cin7 Core tab, then press the button.</p>
-  <button id="load">Load MRP runs</button>
+  <p class="hint">Open a signed-in Cin7 Core tab, then pick a dataset.</p>
+
+  <div class="row">
+    <select id="dataset" aria-label="Dataset"></select>
+    <input id="search" type="search" placeholder="Search in Cin7" aria-label="Search in Cin7">
+    <button id="load">Load</button>
+  </div>
+  <div class="row">
+    <input id="filter" type="search" placeholder="Filter loaded rows" aria-label="Filter loaded rows">
+  </div>
+
   <p id="status" role="status"></p>
-  <table id="out" hidden></table>
+  <details id="colsBox" hidden><summary>Columns</summary><div id="cols"></div></details>
+  <div class="scroll"><table id="out" hidden></table></div>
+
+  <div class="row">
+    <button id="more" hidden>Load more</button>
+    <button id="csv" hidden>Download CSV</button>
+  </div>
   <script src="sidepanel.js"></script>
 </body>
 </html>

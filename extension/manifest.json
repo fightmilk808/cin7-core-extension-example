@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Cin7 Core Example",
-  "version": "0.1.0",
-  "description": "Bare-bones example: a side panel that reads one allow-listed Cin7 Core endpoint through your signed-in session.",
+  "version": "0.2.0",
+  "description": "Bare-bones example: a side panel that reads allow-listed Cin7 Core endpoints through your signed-in session.",
   "permissions": ["sidePanel", "activeTab"],
   "host_permissions": ["https://inventory.dearsystems.com/*"],
   "background": { "service_worker": "background.js" },

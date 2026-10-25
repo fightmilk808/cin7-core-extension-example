@@ -1,16 +1,25 @@
 # Cin7 Core extension example
 
-The smallest working Chrome extension for Cin7 Core: a side panel that reads one allow-listed endpoint through your own
+A small working Chrome extension for Cin7 Core: a side panel that reads allow-listed endpoints through your own
 signed-in session and shows the rows. It is a backbone to copy, not a product. Point your own coding agent at it, together
 with the [Cin7 Core rebuild map](https://github.com/fightmilk808/cin7-core-rebuild), and ask for the extension you want.
+
+## What it does
+
+- Pick a dataset: MRP runs, products or suppliers (three `GET` reads from the map).
+- Search in Cin7 (the endpoint's own `search` parameter), then filter the loaded rows as you type.
+- Load more, 25 rows at a time.
+- Choose which columns to show; the table starts with the first five.
+- Number, name and SKU cells link back to the record in Cin7.
+- Download what you see as CSV.
 
 ## What's in it
 
 | File | Job |
 |---|---|
 | [extension/manifest.json](extension/manifest.json) | Manifest V3. Only `sidePanel` and `activeTab`, plus the one Cin7 host. |
-| [extension/content.js](extension/content.js) | Runs on `inventory.dearsystems.com`. The only file that talks to Cin7: a `GET`-only reader with an allow-list and a 300 ms gap between calls. |
-| [extension/sidepanel.html](extension/sidepanel.html), [sidepanel.js](extension/sidepanel.js), [sidepanel.css](extension/sidepanel.css) | The UI. Asks the page for rows and draws a table. Has an empty `sink()` where your own storage or API would go. |
+| [extension/content.js](extension/content.js) | Runs on `inventory.dearsystems.com`. The only file that talks to Cin7: a `GET`-only reader with a `DATASETS` allow-list (one entry per endpoint) and a 300 ms gap between calls. |
+| [extension/sidepanel.html](extension/sidepanel.html), [sidepanel.js](extension/sidepanel.js), [sidepanel.css](extension/sidepanel.css) | The UI. Asks the page for rows, draws the table, handles search, filter, columns, paging and CSV. Has an empty `sink()` where your own storage or API would go. |
 | [extension/background.js](extension/background.js) | Opens the side panel when you click the toolbar icon. |
 
 ```
@@ -22,9 +31,11 @@ side panel  --chrome.tabs.sendMessage-->  content script  --fetch (your cookie)-
 
 1. Open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked**, choose the [extension/](extension/) folder.
 2. Sign in to Cin7 Core in a tab and leave that tab active.
-3. Click the extension icon, then **Load MRP runs**.
+3. Click the extension icon, choose a dataset and press **Load**.
 
-If the call answers 404 or 405, your tenant may not have MRP or the paging parameters differ; pick another endpoint from the map.
+After editing the code, press the reload icon on the extension's card, then reload the Cin7 tab so the new content script attaches.
+
+MRP runs is the one checked against a live tenant. Products and suppliers use the endpoints and `/Product#<id>`, `/Supplier#<id>` links from the map's naming pattern; if a call answers 404 or 405, or a link doesn't open the record, adjust that entry in `DATASETS`.
 
 ## Ask your agent to build on it
 
@@ -32,8 +43,7 @@ Paste something like this into your agent, inside a clone of this repo, with the
 
 > Extend the extension in `extension/`. Use `../cin7-core-rebuild` to find the Cin7 internal endpoints (each module's
 > `README.md` lists them with verb and read/write marking; `docs/INTERNAL-API.md` explains the conventions).
-> Add a new read endpoint to the `ALLOWED` list in `content.js`, a button for it in the side panel, and a table that shows
-> its rows. Rules: GET only; never add an endpoint marked write; keep calls spaced out; render with `textContent`, never
+> Add a new read endpoint as an entry in `DATASETS` in `content.js` (it then appears in the dataset picker on its own). Rules: GET only; never add an endpoint marked write; keep calls spaced out; render with `textContent`, never
 > `innerHTML`; keep permissions and host list as small as they are now.
 
 Ideas to ask for: a product or stock lookup, a purchase order list with links back to Cin7, a production schedule view,
