@@ -109,7 +109,8 @@ async function load(append) {
     total = res.total;
     if (!append || !columns.length) {
       columns = [...new Set(rows.flatMap((r) => Object.keys(r)))];
-      shown = new Set(columns.slice(0, 5));
+      // Start with five readable columns; GUID-style *ID columns stay ticked-off until asked for.
+      shown = new Set(columns.filter((c) => !/(^|[a-z])ID$/.test(c)).slice(0, 5));
       renderColumns();
     }
     await sink($('dataset').value, res.rows);

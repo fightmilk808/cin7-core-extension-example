@@ -1,76 +1,96 @@
 # Cin7 Core extension example
 
-A small working Chrome extension for Cin7 Core: a side panel that reads allow-listed endpoints through your own
-signed-in session and shows the rows. It is a backbone to copy, not a product. Point your own coding agent at it, together
-with the [Cin7 Core rebuild map](https://github.com/fightmilk808/cin7-core-rebuild), and ask for the extension you want.
+[![Manifest V3](https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white)](https://developer.chrome.com/docs/extensions/develop/migrate/what-is-mv3)
+[![Read only](https://img.shields.io/badge/Cin7-read%20only-2ea44f)](#rules)
+[![No build step](https://img.shields.io/badge/build-none-lightgrey)](extension/)
+[![MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-![The side panel listing MRP runs (invented sample data)](docs/screenshot.png)
+A tiny side panel that reads Cin7 Core through **your own signed-in session**. Copy it, point your agent at it, build what you need.
 
-*Sample data. This is not Cin7 affiliated software: it is an independent example that talks to the Cin7 Core web app you are already signed in to.*
+![Demo: load MRP runs, filter, pick columns, search products (invented data)](docs/demo.gif)
 
-## What it does
+<sub>Invented sample data. Independent example, not affiliated with Cin7.</sub>
 
-- Pick a dataset: MRP runs, products or suppliers (three `GET` reads from the map).
-- Search in Cin7 (the endpoint's own `search` parameter), then filter the loaded rows as you type.
-- Load more, 25 rows at a time.
-- Choose which columns to show; the table starts with the first five.
-- Number, name and SKU cells link back to the record in Cin7.
-- Download what you see as CSV.
+## Features
 
-## What's in it
-
-| File | Job |
+| | |
 |---|---|
-| [extension/manifest.json](extension/manifest.json) | Manifest V3. Only `sidePanel` and `activeTab`, plus the one Cin7 host. |
-| [extension/content.js](extension/content.js) | Runs on `inventory.dearsystems.com`. The only file that talks to Cin7: a `GET`-only reader with a `DATASETS` allow-list (one entry per endpoint) and a 300 ms gap between calls. |
-| [extension/sidepanel.html](extension/sidepanel.html), [sidepanel.js](extension/sidepanel.js), [sidepanel.css](extension/sidepanel.css) | The UI. Asks the page for rows, draws the table, handles search, filter, columns, paging and CSV. Has an empty `sink()` where your own storage or API would go. |
-| [extension/background.js](extension/background.js) | Opens the side panel when you click the toolbar icon. |
+| 📚 Datasets | MRP runs · Products · Suppliers |
+| 🔎 Search | Server-side (`search` param) + instant filter |
+| 📄 Paging | 25 rows at a time, **Load more** |
+| 🧱 Columns | Pick which to show |
+| 🔗 Links | Number / Name / SKU open the record in Cin7 |
+| ⬇️ Export | CSV of what's on screen |
 
+## How it works
+
+```mermaid
+sequenceDiagram
+    participant P as Side panel
+    participant C as content.js<br/>(on inventory.dearsystems.com)
+    participant K as Cin7 Core
+    P->>C: cin7:read {dataset, search, page}
+    C->>C: allow-list check · 300 ms gap
+    C->>K: GET /api/... (your cookie)
+    K-->>C: { root: [...], total }
+    C-->>P: { rows, total }
+    P->>P: table · filter · CSV · sink()
 ```
-side panel  --chrome.tabs.sendMessage-->  content script  --fetch (your cookie)-->  Cin7
-   (UI)      <------ { ok, rows, total } ---   (allow-list)  <------ JSON ----------
+
+| File | Owns |
+|---|---|
+| [content.js](extension/content.js) | The **only** code that talks to Cin7. `DATASETS` allow-list, `GET` only |
+| [sidepanel.js](extension/sidepanel.js) | UI + `sink()` (the one exit for data, empty by default) |
+| [manifest.json](extension/manifest.json) | `sidePanel` + `activeTab` + one host |
+| [background.js](extension/background.js) | Icon click → open panel |
+
+## Quick start
+
+| Step | Do |
+|:-:|---|
+| 1 | `chrome://extensions` → **Developer mode** → **Load unpacked** → [`extension/`](extension/) |
+| 2 | Sign in to Cin7 Core, keep that tab active |
+| 3 | Click the icon → pick a dataset → **Load** |
+
+| Status | Dataset |
+|---|---|
+| ✅ Live-tested | MRP runs |
+| 🟡 From the map, untested | Products, Suppliers |
+
+## Build on it
+
+```mermaid
+flowchart LR
+    A[cin7-core-rebuild<br/>endpoint map] --> B[cin7 mcp<br/>search_operations]
+    B --> C[Add 1 entry to<br/>DATASETS]
+    C --> D[Reload extension<br/>+ Cin7 tab]
 ```
 
-## Try it
+Paste into your agent:
 
-1. Open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked**, choose the [extension/](extension/) folder.
-2. Sign in to Cin7 Core in a tab and leave that tab active.
-3. Click the extension icon, choose a dataset and press **Load**.
+> Add a dataset to `extension/content.js` `DATASETS` for <what you want>. Find a GET read endpoint with the `cin7 mcp` server or `../cin7-core-rebuild`. GET only, `textContent` only, no new permissions.
 
-After editing the code, press the reload icon on the extension's card, then reload the Cin7 tab so the new content script attaches.
+| Tool | Link |
+|---|---|
+| 🗺️ Endpoint map | [cin7-core-rebuild](https://github.com/fightmilk808/cin7-core-rebuild) |
+| 🤖 MCP server + CLI | [cin7-core-cli](https://github.com/fightmilk808/cin7-core-cli) |
+| 🧠 Agent skill | [skills/cin7-extension/SKILL.md](skills/cin7-extension/SKILL.md) → copy to `~/.claude/skills/` |
 
-MRP runs is the one checked against a live tenant. Products and suppliers use the endpoints and `/Product#<id>`, `/Supplier#<id>` links from the map's naming pattern; if a call answers 404 or 405, or a link doesn't open the record, adjust that entry in `DATASETS`.
+## Rules
 
-## Ask your agent to build on it
+| ✅ Do | ❌ Don't |
+|---|---|
+| `GET` endpoints the map marks read | Same URL with `POST`/`PUT`/`DELETE` |
+| `textContent` | `innerHTML` |
+| Keep the 300 ms gap, page results | Loop over thousands of records |
+| Send data only via `sink()` | Add hosts or permissions unasked |
+| Test in your usual browser | Sign in from a second one (1 session per login) |
 
-Paste something like this into your agent, inside a clone of this repo, with the rebuild map checked out beside it:
+## Update · Remove
 
-> Extend the extension in `extension/`. Use `../cin7-core-rebuild` to find the Cin7 internal endpoints (each module's
-> `README.md` lists them with verb and read/write marking; `docs/INTERNAL-API.md` explains the conventions).
-> Add a new read endpoint as an entry in `DATASETS` in `content.js` (it then appears in the dataset picker on its own). Rules: GET only; never add an endpoint marked write; keep calls spaced out; render with `textContent`, never
-> `innerHTML`; keep permissions and host list as small as they are now.
-
-Ideas to ask for: a product or stock lookup, a purchase order list with links back to Cin7, a production schedule view,
-a CSV export button, or filling in `sink()` to save rows to your own database.
-
-## Agent skill
-
-[skills/cin7-extension/SKILL.md](skills/cin7-extension/SKILL.md) gives your agent this repo's rules and the steps to add a dataset. Copy the folder into `~/.claude/skills/` (or your agent's skills folder). For endpoint lookups, pair it with the `cin7 mcp` server from [cin7-core-cli](https://github.com/fightmilk808/cin7-core-cli).
-
-## Ground rules
-
-- **Read only.** The content script uses `GET` and nothing else. Cin7 stores often save with the same URL as they read
-  (`POST`, `PUT`, `DELETE`), so check the map's read/write marking before you allow a path.
-- **Your session, your data.** The extension uses the cookie of the person signed in. Cin7 allows one web session per login,
-  so don't sign in from a second browser while testing.
-- **Be gentle.** Keep the call gap, page results, and don't loop over thousands of records.
-- **Nothing leaves the browser** unless you write a `sink()` that sends it.
-
-## Update and remove
-
-- **Update:** pull the repo, press the reload icon on the extension's card in `chrome://extensions`, then reload the Cin7 tab.
-- **Remove:** click **Remove** on the extension's card. It stores nothing, so there is nothing else to clean up.
-
-## License
+| | |
+|---|---|
+| Update | `git pull` → reload icon on the card → reload the Cin7 tab |
+| Remove | **Remove** on the card. Nothing stored. |
 
 [MIT](LICENSE)
